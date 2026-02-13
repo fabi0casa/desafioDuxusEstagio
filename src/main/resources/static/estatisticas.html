@@ -6,6 +6,14 @@
 </head>
 <body>
 
+<h1>Estatísticas</h1>
+
+<h3>Filtro de Período (opcional)</h3>
+Data Inicial: <input type="date" id="dataInicial">
+Data Final: <input type="date" id="dataFinal">
+
+<hr>
+
 <h2>Time da Data</h2>
 <input type="date" id="dataTime">
 <button onclick="buscarTime()">Buscar</button>
@@ -19,9 +27,21 @@
 
 <hr>
 
+<h2>Time Mais Comum</h2>
+<button onclick="timeMaisComum()">Buscar</button>
+<pre id="resultadoTimeMaisComum"></pre>
+
+<hr>
+
 <h2>Função Mais Comum</h2>
 <button onclick="funcaoMaisComum()">Buscar</button>
 <pre id="resultadoFuncao"></pre>
+
+<hr>
+
+<h2>Franquia Mais Famosa</h2>
+<button onclick="franquiaMaisFamosa()">Buscar</button>
+<pre id="resultadoFranquiaMaisFamosa"></pre>
 
 <hr>
 
@@ -29,8 +49,27 @@
 <button onclick="contagemFranquia()">Buscar</button>
 <pre id="resultadoFranquia"></pre>
 
+<hr>
+
+<h2>Contagem por Função</h2>
+<button onclick="contagemFuncao()">Buscar</button>
+<pre id="resultadoFuncaoContagem"></pre>
+
 <script>
+
 const base = "http://localhost:8080/estatisticas";
+
+function montarQueryPeriodo() {
+    const dataInicial = document.getElementById("dataInicial").value;
+    const dataFinal = document.getElementById("dataFinal").value;
+
+    let query = "?";
+
+    if (dataInicial) query += `dataInicial=${dataInicial}&`;
+    if (dataFinal) query += `dataFinal=${dataFinal}`;
+
+    return query;
+}
 
 async function buscarTime(){
     const data = document.getElementById("dataTime").value;
@@ -40,22 +79,41 @@ async function buscarTime(){
 }
 
 async function integranteMaisUsado(){
-    const res = await fetch(`${base}/integrante-mais-usado`);
+    const res = await fetch(`${base}/integrante-mais-usado${montarQueryPeriodo()}`);
     document.getElementById("resultadoIntegrante").textContent =
         JSON.stringify(await res.json(), null, 2);
 }
 
+async function timeMaisComum(){
+    const res = await fetch(`${base}/time-mais-comum${montarQueryPeriodo()}`);
+    document.getElementById("resultadoTimeMaisComum").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
 async function funcaoMaisComum(){
-    const res = await fetch(`${base}/funcao-mais-comum`);
+    const res = await fetch(`${base}/funcao-mais-comum${montarQueryPeriodo()}`);
     document.getElementById("resultadoFuncao").textContent =
         JSON.stringify(await res.json(), null, 2);
 }
 
+async function franquiaMaisFamosa(){
+    const res = await fetch(`${base}/franquia-mais-famosa${montarQueryPeriodo()}`);
+    document.getElementById("resultadoFranquiaMaisFamosa").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
 async function contagemFranquia(){
-    const res = await fetch(`${base}/contagem-por-franquia`);
+    const res = await fetch(`${base}/contagem-por-franquia${montarQueryPeriodo()}`);
     document.getElementById("resultadoFranquia").textContent =
         JSON.stringify(await res.json(), null, 2);
 }
+
+async function contagemFuncao(){
+    const res = await fetch(`${base}/contagem-por-funcao${montarQueryPeriodo()}`);
+    document.getElementById("resultadoFuncaoContagem").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
 </script>
 
 </body>
