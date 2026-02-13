@@ -242,7 +242,7 @@ public class ApiService {
 
                 Integrante integrante = composicao.getIntegrante();
 
-                // 🔑 conta cada integrante apenas uma vez no período
+                // conta cada integrante apenas uma vez no período
                 if (integrantesJaContados.add(integrante)) {
 
                     String funcao = integrante.getFuncao();
