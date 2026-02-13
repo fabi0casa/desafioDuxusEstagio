@@ -76,8 +76,31 @@ public class ApiService {
      * dentro do período
      */
     public List<String> integrantesDoTimeMaisComum(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes){
-        // TODO Implementar método seguindo as instruções!
-        return null;
+
+        if (todosOsTimes == null || todosOsTimes.isEmpty()) {
+            return null;
+        }
+
+        Map<List<String>, Long> contagem = todosOsTimes.stream()
+                .filter(time -> {
+                    if (time.getData() == null) return false;
+
+                    boolean depoisOuIgualInicio = dataInicial == null || !time.getData().isBefore(dataInicial);
+                    boolean antesOuIgualFim = dataFinal == null || !time.getData().isAfter(dataFinal);
+
+                    return depoisOuIgualInicio && antesOuIgualFim;
+                })
+                .map(time -> time.getComposicaoTime().stream()
+                        .map(ct -> ct.getIntegrante().getNome())
+                        .sorted() // importante para garantir igualdade
+                        .collect(Collectors.toList()))
+                .collect(Collectors.groupingBy(lista -> lista, Collectors.counting()));
+
+        return contagem.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
 
     /**
