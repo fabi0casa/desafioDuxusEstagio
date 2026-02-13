@@ -181,7 +181,6 @@ public class ApiService {
             boolean depoisOuIgualInicio =
                     (dataInicial == null) || !time.getData().isBefore(dataInicial);
 
-            // DATA FINAL EXCLUSIVA
             boolean antesFim =
                     (dataFinal == null) || time.getData().isBefore(dataFinal);
 
@@ -206,47 +205,58 @@ public class ApiService {
     /**
      * Vai retornar o número (quantidade) de Funções dentro do período
      */
-    public Map<String, Long> contagemPorFuncao(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes){
+    public Map<String, Long> contagemPorFuncao(LocalDate dataInicial,
+                                            LocalDate dataFinal,
+                                            List<Time> todosOsTimes) {
 
         Map<String, Long> resultado = new HashMap<>();
+        Set<Integrante> integrantesJaContados = new HashSet<>();
 
-        if (todosOsTimes == null || todosOsTimes.isEmpty()) {
+        if (todosOsTimes == null) {
             return resultado;
         }
 
         for (Time time : todosOsTimes) {
 
-            if (time.getData() == null) {
+            if (time == null || time.getData() == null) {
                 continue;
             }
 
-            boolean depoisOuIgualInicio =
-                    (dataInicial == null) || !time.getData().isBefore(dataInicial);
+            if (dataInicial != null && time.getData().isBefore(dataInicial)) {
+                continue;
+            }
 
-            // DATA FINAL EXCLUSIVA
-            boolean antesFim =
-                    (dataFinal == null) || time.getData().isBefore(dataFinal);
+            if (dataFinal != null && !time.getData().isBefore(dataFinal)) {
+                continue; // final exclusiva
+            }
 
-            if (depoisOuIgualInicio && antesFim) {
+            if (time.getComposicaoTime() == null) {
+                continue;
+            }
 
-                if (time.getComposicaoTime() == null) {
+            for (ComposicaoTime composicao : time.getComposicaoTime()) {
+
+                if (composicao == null || composicao.getIntegrante() == null) {
                     continue;
                 }
 
-                Set<String> funcoesDoTime = new HashSet<>();
+                Integrante integrante = composicao.getIntegrante();
 
-                for (ComposicaoTime composicao : time.getComposicaoTime()) {
-                    String funcao = composicao.getIntegrante().getFuncao();
-                    funcoesDoTime.add(funcao);
-                }
+                // 🔑 conta cada integrante apenas uma vez no período
+                if (integrantesJaContados.add(integrante)) {
 
-                for (String funcao : funcoesDoTime) {
-                    resultado.put(funcao, resultado.getOrDefault(funcao, 0L) + 1);
+                    String funcao = integrante.getFuncao();
+
+                    if (funcao != null) {
+                        resultado.put(funcao,
+                                resultado.getOrDefault(funcao, 0L) + 1);
+                    }
                 }
             }
         }
 
         return resultado;
     }
+
 
 }
