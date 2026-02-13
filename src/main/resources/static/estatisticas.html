@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Estatísticas</title>
+</head>
+<body>
+
+<h2>Time da Data</h2>
+<input type="date" id="dataTime">
+<button onclick="buscarTime()">Buscar</button>
+<pre id="resultadoTime"></pre>
+
+<hr>
+
+<h2>Integrante Mais Usado</h2>
+<button onclick="integranteMaisUsado()">Buscar</button>
+<pre id="resultadoIntegrante"></pre>
+
+<hr>
+
+<h2>Função Mais Comum</h2>
+<button onclick="funcaoMaisComum()">Buscar</button>
+<pre id="resultadoFuncao"></pre>
+
+<hr>
+
+<h2>Contagem por Franquia</h2>
+<button onclick="contagemFranquia()">Buscar</button>
+<pre id="resultadoFranquia"></pre>
+
+<script>
+const base = "http://localhost:8080/estatisticas";
+
+async function buscarTime(){
+    const data = document.getElementById("dataTime").value;
+    const res = await fetch(`${base}/time-da-data?data=${data}`);
+    document.getElementById("resultadoTime").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function integranteMaisUsado(){
+    const res = await fetch(`${base}/integrante-mais-usado`);
+    document.getElementById("resultadoIntegrante").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function funcaoMaisComum(){
+    const res = await fetch(`${base}/funcao-mais-comum`);
+    document.getElementById("resultadoFuncao").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function contagemFranquia(){
+    const res = await fetch(`${base}/contagem-por-franquia`);
+    document.getElementById("resultadoFranquia").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+</script>
+
+</body>
+</html>

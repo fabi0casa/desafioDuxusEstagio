@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Integrantes</title>
+</head>
+<body>
+
+<h2>Cadastrar Integrante</h2>
+
+<form id="formIntegrante">
+    Franquia: <input type="text" id="franquia" required><br><br>
+    Nome: <input type="text" id="nome" required><br><br>
+    Função: <input type="text" id="funcao" required><br><br>
+    <button type="submit">Salvar</button>
+</form>
+
+<h2>Lista de Integrantes</h2>
+<ul id="lista"></ul>
+
+<script>
+const api = "http://localhost:8080/integrantes";
+
+document.getElementById("formIntegrante").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const integrante = {
+        franquia: document.getElementById("franquia").value,
+        nome: document.getElementById("nome").value,
+        funcao: document.getElementById("funcao").value
+    };
+
+    await fetch(api, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(integrante)
+    });
+
+    carregarIntegrantes();
+});
+
+async function carregarIntegrantes(){
+    const response = await fetch(api);
+    const data = await response.json();
+
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    data.forEach(i => {
+        const li = document.createElement("li");
+        li.textContent = `${i.id} - ${i.nome} (${i.funcao}) - ${i.franquia}`;
+        lista.appendChild(li);
+    });
+}
+
+carregarIntegrantes();
+</script>
+
+</body>
+</html>

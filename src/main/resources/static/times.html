@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Times</title>
+</head>
+<body>
+
+<h2>Criar Time</h2>
+
+Data: <input type="date" id="data"><br><br>
+
+<h3>Selecione Integrantes</h3>
+<div id="integrantesCheckbox"></div><br>
+
+<button onclick="criarTime()">Salvar Time</button>
+
+<h2>Lista de Times</h2>
+<ul id="listaTimes"></ul>
+
+<script>
+const apiTimes = "http://localhost:8080/times";
+const apiIntegrantes = "http://localhost:8080/integrantes";
+
+async function carregarIntegrantes(){
+    const response = await fetch(apiIntegrantes);
+    const data = await response.json();
+
+    const div = document.getElementById("integrantesCheckbox");
+    div.innerHTML = "";
+
+    data.forEach(i => {
+        div.innerHTML += `
+            <input type="checkbox" value="${i.id}"> ${i.nome} <br>
+        `;
+    });
+}
+
+async function criarTime(){
+    const data = document.getElementById("data").value;
+    const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+
+    const integrantesIds = Array.from(checkboxes).map(cb => Number(cb.value));
+
+    await fetch(apiTimes, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data, integrantesIds })
+    });
+
+    carregarTimes();
+}
+
+async function carregarTimes(){
+    const response = await fetch(apiTimes);
+    const data = await response.json();
+
+    const lista = document.getElementById("listaTimes");
+    lista.innerHTML = "";
+
+    data.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = `Time ${t.id} - ${t.data}`;
+        lista.appendChild(li);
+    });
+}
+
+carregarIntegrantes();
+carregarTimes();
+</script>
+
+</body>
+</html>
