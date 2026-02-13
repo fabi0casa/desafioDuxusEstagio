@@ -6,8 +6,11 @@ import br.com.duxusdesafio.model.Time;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -163,16 +166,89 @@ public class ApiService {
      * Vai retornar o número (quantidade) de Franquias dentro do período
      */
     public Map<String, Long> contagemPorFranquia(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes){
-        // TODO Implementar método seguindo as instruções!
-        return null;
+
+        Map<String, Long> resultado = new HashMap<>();
+        Set<LocalDate> datasProcessadas = new HashSet<>();
+
+        if (todosOsTimes == null || todosOsTimes.isEmpty()) {
+            return resultado;
+        }
+
+        for (Time time : todosOsTimes) {
+
+            if (time.getData() == null) continue;
+
+            boolean depoisOuIgualInicio = (dataInicial == null) || !time.getData().isBefore(dataInicial);
+            boolean antesOuIgualFim = (dataFinal == null) || !time.getData().isAfter(dataFinal);
+
+            if (depoisOuIgualInicio && antesOuIgualFim) {
+
+                // 🔥 ignora duplicata de data
+                if (datasProcessadas.contains(time.getData())) {
+                    continue;
+                }
+
+                datasProcessadas.add(time.getData());
+
+                if (time.getComposicaoTime() == null || time.getComposicaoTime().isEmpty()) {
+                    continue;
+                }
+
+                String franquia = time.getComposicaoTime()
+                        .get(0)
+                        .getIntegrante()
+                        .getFranquia();
+
+                resultado.put(franquia, resultado.getOrDefault(franquia, 0L) + 1);
+            }
+        }
+
+        return resultado;
     }
 
     /**
      * Vai retornar o número (quantidade) de Funções dentro do período
      */
     public Map<String, Long> contagemPorFuncao(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes){
-        // TODO Implementar método seguindo as instruções!
-        return null;
+
+        Map<String, Long> resultado = new HashMap<>();
+        Set<LocalDate> datasProcessadas = new HashSet<>();
+
+        if (todosOsTimes == null || todosOsTimes.isEmpty()) {
+            return resultado;
+        }
+
+        for (Time time : todosOsTimes) {
+
+            if (time.getData() == null) continue;
+
+            boolean depoisOuIgualInicio = (dataInicial == null) || !time.getData().isBefore(dataInicial);
+            boolean antesOuIgualFim = (dataFinal == null) || !time.getData().isAfter(dataFinal);
+
+            if (depoisOuIgualInicio && antesOuIgualFim) {
+
+                // 🔥 ignora duplicata de data
+                if (datasProcessadas.contains(time.getData())) {
+                    continue;
+                }
+
+                datasProcessadas.add(time.getData());
+
+                if (time.getComposicaoTime() == null) continue;
+
+                Set<String> funcoesDoTime = new HashSet<>();
+
+                for (ComposicaoTime composicao : time.getComposicaoTime()) {
+                    funcoesDoTime.add(composicao.getIntegrante().getFuncao());
+                }
+
+                for (String funcao : funcoesDoTime) {
+                    resultado.put(funcao, resultado.getOrDefault(funcao, 0L) + 1);
+                }
+            }
+        }
+
+        return resultado;
     }
 
 }
