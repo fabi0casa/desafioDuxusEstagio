@@ -135,8 +135,27 @@ public class ApiService {
      * Vai retornar o nome da Franquia mais comum nos times dentro do período
      */
     public String franquiaMaisFamosa(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes) {
-        // TODO Implementar método seguindo as instruções!
-        return null;
+        if (todosOsTimes == null || todosOsTimes.isEmpty()) {
+                return null;
+            }
+
+            return todosOsTimes.stream()
+                    .filter(time -> {
+                        if (time.getData() == null) return false;
+
+                        boolean depoisOuIgualInicio = dataInicial == null || !time.getData().isBefore(dataInicial);
+                        boolean antesOuIgualFim = dataFinal == null || !time.getData().isAfter(dataFinal);
+
+                        return depoisOuIgualInicio && antesOuIgualFim;
+                    })
+                    .flatMap(time -> time.getComposicaoTime().stream())
+                    .map(ct -> ct.getIntegrante().getFranquia())
+                    .collect(Collectors.groupingBy(f -> f, Collectors.counting()))
+                    .entrySet()
+                    .stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
     }
 
 
