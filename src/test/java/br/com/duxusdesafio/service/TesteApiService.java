@@ -65,8 +65,6 @@ public class TesteApiService {
         assertEquals(esperado, timeRetornado);
     }
 
-
-
     @DataProvider
     public static Object[][] testIntegranteMaisUsadoParams() {
 
