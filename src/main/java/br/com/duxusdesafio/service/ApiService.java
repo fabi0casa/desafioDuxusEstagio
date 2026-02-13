@@ -20,12 +20,16 @@ import java.util.Map;
 @Service
 public class ApiService {
 
-    /**
-     * Vai retornar um Time, com a composição do time daquela data
-     */
+    //Vai retornar um Time, com a composição do time daquela data
     public Time timeDaData(LocalDate data, List<Time> todosOsTimes){
-        // TODO Implementar método seguindo as instruções!
-        return null;
+        if (data == null || todosOsTimes == null || todosOsTimes.isEmpty()) {
+                return null;
+            }
+
+            return todosOsTimes.stream()
+                    .filter(time -> data.equals(time.getData()))
+                    .findFirst()
+                    .orElse(null);
     }
 
     /**
