@@ -166,9 +166,7 @@ public class ApiService {
      * Vai retornar o número (quantidade) de Franquias dentro do período
      */
     public Map<String, Long> contagemPorFranquia(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes){
-
         Map<String, Long> resultado = new HashMap<>();
-        Set<LocalDate> datasProcessadas = new HashSet<>();
 
         if (todosOsTimes == null || todosOsTimes.isEmpty()) {
             return resultado;
@@ -176,19 +174,18 @@ public class ApiService {
 
         for (Time time : todosOsTimes) {
 
-            if (time.getData() == null) continue;
+            if (time.getData() == null) {
+                continue;
+            }
 
-            boolean depoisOuIgualInicio = (dataInicial == null) || !time.getData().isBefore(dataInicial);
-            boolean antesOuIgualFim = (dataFinal == null) || !time.getData().isAfter(dataFinal);
+            boolean depoisOuIgualInicio =
+                    (dataInicial == null) || !time.getData().isBefore(dataInicial);
 
-            if (depoisOuIgualInicio && antesOuIgualFim) {
+            // DATA FINAL EXCLUSIVA
+            boolean antesFim =
+                    (dataFinal == null) || time.getData().isBefore(dataFinal);
 
-                // 🔥 ignora duplicata de data
-                if (datasProcessadas.contains(time.getData())) {
-                    continue;
-                }
-
-                datasProcessadas.add(time.getData());
+            if (depoisOuIgualInicio && antesFim) {
 
                 if (time.getComposicaoTime() == null || time.getComposicaoTime().isEmpty()) {
                     continue;
@@ -212,7 +209,6 @@ public class ApiService {
     public Map<String, Long> contagemPorFuncao(LocalDate dataInicial, LocalDate dataFinal, List<Time> todosOsTimes){
 
         Map<String, Long> resultado = new HashMap<>();
-        Set<LocalDate> datasProcessadas = new HashSet<>();
 
         if (todosOsTimes == null || todosOsTimes.isEmpty()) {
             return resultado;
@@ -220,26 +216,28 @@ public class ApiService {
 
         for (Time time : todosOsTimes) {
 
-            if (time.getData() == null) continue;
+            if (time.getData() == null) {
+                continue;
+            }
 
-            boolean depoisOuIgualInicio = (dataInicial == null) || !time.getData().isBefore(dataInicial);
-            boolean antesOuIgualFim = (dataFinal == null) || !time.getData().isAfter(dataFinal);
+            boolean depoisOuIgualInicio =
+                    (dataInicial == null) || !time.getData().isBefore(dataInicial);
 
-            if (depoisOuIgualInicio && antesOuIgualFim) {
+            // DATA FINAL EXCLUSIVA
+            boolean antesFim =
+                    (dataFinal == null) || time.getData().isBefore(dataFinal);
 
-                // 🔥 ignora duplicata de data
-                if (datasProcessadas.contains(time.getData())) {
+            if (depoisOuIgualInicio && antesFim) {
+
+                if (time.getComposicaoTime() == null) {
                     continue;
                 }
-
-                datasProcessadas.add(time.getData());
-
-                if (time.getComposicaoTime() == null) continue;
 
                 Set<String> funcoesDoTime = new HashSet<>();
 
                 for (ComposicaoTime composicao : time.getComposicaoTime()) {
-                    funcoesDoTime.add(composicao.getIntegrante().getFuncao());
+                    String funcao = composicao.getIntegrante().getFuncao();
+                    funcoesDoTime.add(funcao);
                 }
 
                 for (String funcao : funcoesDoTime) {
