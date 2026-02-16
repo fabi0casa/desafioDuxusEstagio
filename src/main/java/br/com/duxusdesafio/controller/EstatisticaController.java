@@ -3,7 +3,6 @@ package br.com.duxusdesafio.controller;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,42 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.duxusdesafio.dto.FuncaoResponse;
 import br.com.duxusdesafio.dto.TimeDaDataResponse;
 import br.com.duxusdesafio.model.Integrante;
-import br.com.duxusdesafio.model.Time;
-import br.com.duxusdesafio.repository.TimeRepository;
-import br.com.duxusdesafio.service.ApiService;
+import br.com.duxusdesafio.service.EstatisticaService;
 
 @RestController
 @RequestMapping("/estatisticas")
 public class EstatisticaController {
 
-    private final TimeRepository timeRepository;
-    private final ApiService apiService;
+    private final EstatisticaService estatisticaService;
 
-    public EstatisticaController(TimeRepository timeRepository,
-                                 ApiService apiService) {
-        this.timeRepository = timeRepository;
-        this.apiService = apiService;
-    }
-
-    private List<Time> buscarTodos() {
-        return timeRepository.findAll();
+    public EstatisticaController(EstatisticaService estatisticaService) {
+        this.estatisticaService = estatisticaService;
     }
 
     @GetMapping("/time-da-data")
     public TimeDaDataResponse timeDaData(@RequestParam String data) {
-
-        LocalDate dataFormatada = LocalDate.parse(data);
-
-        Time time = apiService.timeDaData(dataFormatada, buscarTodos());
-
-        if (time == null) return null;
-
-        List<String> nomes = time.getComposicaoTime()
-                .stream()
-                .map(ct -> ct.getIntegrante().getNome())
-                .collect(Collectors.toList());
-
-        return new TimeDaDataResponse(time.getData(), nomes);
+        return estatisticaService.timeDaData(LocalDate.parse(data));
     }
 
     @GetMapping("/integrante-mais-usado")
@@ -56,10 +34,9 @@ public class EstatisticaController {
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
 
-        return apiService.integranteMaisUsado(
+        return estatisticaService.integranteMaisUsado(
                 dataInicial != null ? LocalDate.parse(dataInicial) : null,
-                dataFinal != null ? LocalDate.parse(dataFinal) : null,
-                buscarTodos());
+                dataFinal != null ? LocalDate.parse(dataFinal) : null);
     }
 
     @GetMapping("/time-mais-comum")
@@ -67,10 +44,9 @@ public class EstatisticaController {
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
 
-        return apiService.integrantesDoTimeMaisComum(
+        return estatisticaService.timeMaisComum(
                 dataInicial != null ? LocalDate.parse(dataInicial) : null,
-                dataFinal != null ? LocalDate.parse(dataFinal) : null,
-                buscarTodos());
+                dataFinal != null ? LocalDate.parse(dataFinal) : null);
     }
 
     @GetMapping("/funcao-mais-comum")
@@ -78,12 +54,10 @@ public class EstatisticaController {
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
 
-        String funcao = apiService.funcaoMaisComum(
-                dataInicial != null ? LocalDate.parse(dataInicial) : null,
-                dataFinal != null ? LocalDate.parse(dataFinal) : null,
-                buscarTodos());
-
-        return new FuncaoResponse(funcao);
+        return new FuncaoResponse(
+                estatisticaService.funcaoMaisComum(
+                        dataInicial != null ? LocalDate.parse(dataInicial) : null,
+                        dataFinal != null ? LocalDate.parse(dataFinal) : null));
     }
 
     @GetMapping("/franquia-mais-famosa")
@@ -91,12 +65,10 @@ public class EstatisticaController {
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
 
-        String franquia = apiService.franquiaMaisFamosa(
-                dataInicial != null ? LocalDate.parse(dataInicial) : null,
-                dataFinal != null ? LocalDate.parse(dataFinal) : null,
-                buscarTodos());
-
-        return Map.of("franquia", franquia);
+        return Map.of("franquia",
+                estatisticaService.franquiaMaisFamosa(
+                        dataInicial != null ? LocalDate.parse(dataInicial) : null,
+                        dataFinal != null ? LocalDate.parse(dataFinal) : null));
     }
 
     @GetMapping("/contagem-por-franquia")
@@ -104,10 +76,9 @@ public class EstatisticaController {
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
 
-        return apiService.contagemPorFranquia(
+        return estatisticaService.contagemPorFranquia(
                 dataInicial != null ? LocalDate.parse(dataInicial) : null,
-                dataFinal != null ? LocalDate.parse(dataFinal) : null,
-                buscarTodos());
+                dataFinal != null ? LocalDate.parse(dataFinal) : null);
     }
 
     @GetMapping("/contagem-por-funcao")
@@ -115,10 +86,8 @@ public class EstatisticaController {
             @RequestParam(required = false) String dataInicial,
             @RequestParam(required = false) String dataFinal) {
 
-        return apiService.contagemPorFuncao(
+        return estatisticaService.contagemPorFuncao(
                 dataInicial != null ? LocalDate.parse(dataInicial) : null,
-                dataFinal != null ? LocalDate.parse(dataFinal) : null,
-                buscarTodos());
+                dataFinal != null ? LocalDate.parse(dataFinal) : null);
     }
 }
-

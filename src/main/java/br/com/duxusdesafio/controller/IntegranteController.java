@@ -9,26 +9,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.duxusdesafio.model.Integrante;
-import br.com.duxusdesafio.repository.IntegranteRepository;
+import br.com.duxusdesafio.service.IntegranteService;
 
 @RestController
 @RequestMapping("/integrantes")
 public class IntegranteController {
 
-    private final IntegranteRepository repository;
+    private final IntegranteService integranteService;
 
-    public IntegranteController(IntegranteRepository repository) {
-        this.repository = repository;
+    public IntegranteController(IntegranteService integranteService) {
+        this.integranteService = integranteService;
     }
 
     @PostMapping
     public Integrante cadastrar(@RequestBody Integrante integrante) {
-        return repository.save(integrante);
+        return integranteService.cadastrar(integrante);
     }
 
     @GetMapping
     public List<Integrante> listar() {
-        return repository.findAll();
+        return integranteService.listar();
     }
 }
-
